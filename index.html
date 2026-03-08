@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Import Pricing Calculator 2025</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --navy:#1a2744;--navy2:#243360;--accent:#2563eb;--accent2:#1d4ed8;
+  --calc:#eef6ff;--border:#d1d5db;--text:#111827;--muted:#6b7280;
+  --green:#15803d;--red:#dc2626;
+  --g-prod:#1e3a5f;--g-det:#1e5f5a;--g-fx:#3d5a1e;
+  --g-nz:#5f3d1e;--g-united:#3d1e5f;--g-cust:#5f1e3d;--g-ana:#1e3d5f;
+  --hdr-bg:#dbeafe;--hdr-border:#3b82f6;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;background:#f3f4f6;color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* ── Header ── */
+.app-hdr{background:var(--navy);color:#fff;height:50px;display:flex;align-items:center;gap:8px;padding:0 12px;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.35);z-index:60;position:relative}
+.app-hdr h1{font-size:14px;font-weight:700;white-space:nowrap}
+.hdr-sep{width:1px;height:26px;background:rgba(255,255,255,.2);flex-shrink:0;margin:0 2px}
+.sp{flex:1}
+.hbtn{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.22);padding:5px 10px;border-radius:5px;cursor:pointer;font-size:12px;font-family:inherit;transition:background .15s;white-space:nowrap}
+.hbtn:hover{background:rgba(255,255,255,.22)}
+.hbtn.pri{background:var(--accent);border-color:var(--accent)}
+.hbtn.pri:hover{background:var(--accent2)}
+.hbtn.dng{background:#b91c1c;border-color:#b91c1c}
+.hbtn.dng:hover{background:#991b1b}
+.hbtn.on{background:rgba(255,255,255,.28);border-color:rgba(255,255,255,.45)}
+.vgrp{display:flex;gap:2px}
+.vbtn{background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.2);padding:4px 9px;cursor:pointer;font-size:11px;font-family:inherit;white-space:nowrap}
+.vbtn:first-child{border-radius:4px 0 0 4px}
+.vbtn:last-child{border-radius:0 4px 4px 0}
+.vbtn.on{background:rgba(255,255,255,.25);color:#fff;border-color:rgba(255,255,255,.4)}
+.save-ind{font-size:12px;color:#6ee7b7;opacity:0;transition:opacity .4s;white-space:nowrap}
+.save-ind.on{opacity:1}
+
+/* ── Sidebar overlay ── */
+.sb-backdrop{display:none;position:fixed;inset:50px 0 0 0;background:rgba(0,0,0,.35);z-index:49}
+.sb-backdrop.on{display:block}
+.sidebar{position:fixed;left:0;top:50px;bottom:0;width:220px;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;transform:translateX(-100%);transition:transform .22s ease;z-index:50;box-shadow:3px 0 14px rgba(0,0,0,.18)}
+.sidebar.open{transform:translateX(0)}
+.sb-hdr{padding:10px 12px;background:#f9fafb;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.sb-hdr span{font-weight:600;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.sb-hdr-btns{display:flex;gap:6px;align-items:center}
+.new-btn{background:var(--accent);color:#fff;border:none;border-radius:4px;padding:4px 9px;cursor:pointer;font-size:12px}
+.new-btn:hover{background:var(--accent2)}
+.sb-close{background:none;border:none;cursor:pointer;color:var(--muted);font-size:18px;line-height:1;padding:0 2px}
+.sb-close:hover{color:var(--text)}
+.page-list{flex:1;overflow-y:auto}
+.pg-item{padding:10px 12px;cursor:pointer;border-bottom:1px solid #f3f4f6;transition:background .1s}
+.pg-item:hover{background:#f5f7fa}
+.pg-item.active{background:#eff6ff;border-left:3px solid var(--accent)}
+.pg-name{font-weight:500;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pg-date{font-size:11px;color:var(--muted)}
+.sb-empty{padding:20px 12px;text-align:center;color:var(--muted);font-size:12px;line-height:1.6}
+
+/* ── Main layout (full width, sidebar overlays) ── */
+.main{display:flex;flex-direction:column;flex:1;overflow:hidden}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:12px;color:var(--muted)}
+.empty p{font-size:15px;font-weight:500;color:#374151}
+
+/* ── Page content ── */
+.pg-content{display:flex;flex-direction:column;height:100%;overflow:hidden}
+
+/* ── Toolbar ── */
+.toolbar{background:#fff;border-bottom:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap}
+.toolbar label{font-size:11px;font-weight:600;color:var(--muted);white-space:nowrap}
+.toolbar input{border:1px solid var(--border);border-radius:4px;padding:5px 8px;font-size:13px;font-family:inherit;color:var(--text)}
+.toolbar input:focus{outline:none;border-color:var(--accent)}
+#custInp{width:180px}
+#dateInp{width:132px}
+.tbtn{background:#f3f4f6;border:1px solid var(--border);border-radius:4px;padding:5px 10px;cursor:pointer;font-size:12px;font-family:inherit;color:var(--text);white-space:nowrap}
+.tbtn:hover{background:#e5e7eb}
+.tbtn.sec{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}
+.tbtn.sec:hover{background:#dbeafe}
+.insert-hint{font-size:11px;color:var(--muted);white-space:nowrap;padding:4px 8px;background:#f9fafb;border:1px solid var(--border);border-radius:4px;cursor:pointer}
+.insert-hint.set{color:var(--accent);border-color:#bfdbfe;background:#eff6ff}
+.insert-hint:hover{background:#e5e7eb}
+
+/* ── Table wrapper ── */
+.tbl-wrap{flex:1;overflow:auto}
+@media print{
+  .app-hdr,.toolbar{display:none!important}
+  .tbl-wrap{overflow:visible;height:auto}
+  .ptbl{font-size:10px}
+  .ptbl thead{position:static}
+}
+
+/* ── Table ── */
+.ptbl{border-collapse:collapse;white-space:nowrap;font-size:12px}
+.ptbl th,.ptbl td{border:1px solid #e5e7eb;padding:0}
+.ptbl thead{position:sticky;top:0;z-index:20}
+.gh th{color:#fff;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;padding:4px 8px;text-align:center}
+.g-prod{background:var(--g-prod)}.g-det{background:var(--g-det)}.g-fx{background:var(--g-fx)}
+.g-nz{background:var(--g-nz)}.g-united{background:var(--g-united)}.g-cust{background:var(--g-cust)}
+.g-ana{background:var(--g-ana)}.g-act{background:#374151}
+.ch th{background:#1f2937;color:#fff;font-size:10px;font-weight:600;padding:4px 6px;text-align:center;white-space:normal;line-height:1.2;vertical-align:bottom}
+.sc{position:sticky;left:0;z-index:5;background:inherit}
+
+/* Data rows */
+.dr td{vertical-align:middle;height:31px}
+.dr:nth-child(even) td{background:#fafbfc}
+.dr:hover td{background:#f0f7ff!important}
+.dr.is-active td{background:#dbeafe!important;outline:none}
+.dr.is-active td:first-child{border-left:3px solid var(--accent)}
+
+/* Section header rows */
+.sec-row td{height:34px;vertical-align:middle}
+.sec-row .sec-rn{background:#dbeafe;border-left:4px solid var(--hdr-border);text-align:center;color:var(--accent2);font-size:11px;font-weight:700;min-width:34px;width:34px}
+.sec-row .sec-cell{background:var(--hdr-bg);padding:0;border-left:none}
+.sec-row .sec-act{background:var(--hdr-bg)}
+.sec-row.is-active .sec-cell{background:#bfdbfe!important}
+.sec-inp{border:none;background:transparent;width:100%;font-size:13px;font-family:inherit;padding:4px 10px;height:34px;color:var(--navy);font-weight:700;letter-spacing:.2px}
+.sec-inp:focus{outline:none;background:rgba(255,255,255,.5)}
+.sec-inp::placeholder{color:#93c5fd;font-weight:400}
+
+/* Common cell styles */
+.rn{text-align:center;color:var(--muted);font-size:11px;min-width:34px;width:34px;background:#f9fafb}
+input.ci,select.ci{border:none;background:transparent;width:100%;font-size:12px;font-family:inherit;padding:3px 6px;height:31px;color:var(--text)}
+input.ci:focus,select.ci:focus{outline:2px solid var(--accent);outline-offset:-2px;background:#fff;position:relative;z-index:2}
+input.ci[type=number]{text-align:right}
+.cc{background:var(--calc);padding:3px 7px;text-align:right;font-size:11.5px;min-width:88px}
+.cc.neg{color:var(--red)}.cc.pos{color:var(--green)}.cc.bold{font-weight:700}
+.ac{text-align:center;padding:2px 3px;min-width:56px;width:56px;white-space:nowrap}
+.del-btn,.dup-btn{border:1px solid #e5e7eb;border-radius:3px;cursor:pointer;padding:2px 5px;font-size:11px;background:none}
+.del-btn{color:#9ca3af}.del-btn:hover{background:#fef2f2;border-color:var(--red);color:var(--red)}
+.dup-btn{color:#9ca3af;margin-right:2px}.dup-btn:hover{background:#eff6ff;border-color:var(--accent);color:var(--accent)}
+.add-row-tr td{padding:10px;text-align:center;border:none}
+.add-row-btn{background:var(--accent);color:#fff;border:none;border-radius:4px;padding:6px 20px;cursor:pointer;font-size:12px}
+.add-row-btn:hover{background:var(--accent2)}
+
+/* Column widths */
+.w34{min-width:34px;width:34px}.w56{min-width:56px;width:56px}
+.w60{min-width:60px;width:60px}.w70{min-width:70px;width:70px}.w80{min-width:80px;width:80px}
+.w90{min-width:90px;width:90px}.w100{min-width:100px;width:100px}
+.w110{min-width:110px;width:110px}.w120{min-width:120px;width:120px}.w150{min-width:150px;width:150px}
+
+/* ── Options Screen ── */
+#optScreen{display:none;flex:1;flex-direction:column;overflow:hidden;background:#f3f4f6}
+.opt-toolbar{background:#fff;border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.opt-toolbar h2{font-size:16px;font-weight:700;color:var(--navy)}
+.opt-grid{flex:1;overflow-y:auto;padding:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:1100px){.opt-grid{grid-template-columns:repeat(2,1fr)}}
+.opt-card{background:#fff;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.opt-card-hdr{background:var(--navy);color:#fff;padding:8px 14px;font-weight:600;font-size:13px;display:flex;align-items:center;justify-content:space-between}
+.opt-card-hdr small{font-size:10px;opacity:.7;font-weight:400}
+.opt-body{padding:10px 12px}
+.opt-list{max-height:200px;overflow-y:auto;margin-bottom:8px;display:flex;flex-wrap:wrap;gap:5px;align-content:flex-start}
+.opt-list.tall{max-height:260px}
+.opt-tag{display:flex;align-items:center;gap:4px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:100px;padding:2px 8px 2px 10px;font-size:12px;color:#1e40af}
+.opt-tag button{background:none;border:none;cursor:pointer;color:#93c5fd;font-size:14px;line-height:1;padding:0 0 0 2px}
+.opt-tag button:hover{color:var(--red)}
+.opt-add{display:flex;gap:6px}
+.opt-add input{flex:1;border:1px solid var(--border);border-radius:4px;padding:5px 8px;font-size:12px;font-family:inherit}
+.opt-add input:focus{outline:none;border-color:var(--accent)}
+.opt-add button{background:var(--accent);color:#fff;border:none;border-radius:4px;padding:5px 10px;cursor:pointer;font-size:12px;white-space:nowrap}
+.opt-add button:hover{background:var(--accent2)}
+.opt-num-list{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.opt-num-tag{display:flex;align-items:center;gap:3px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:100px;padding:2px 8px 2px 10px;font-size:12px;color:#166534}
+.opt-num-tag button{background:none;border:none;cursor:pointer;color:#86efac;font-size:14px;line-height:1;padding:0 0 0 2px}
+.opt-num-tag button:hover{color:var(--red)}
+.opt-single{padding:10px 12px;display:flex;align-items:center;gap:10px;border-top:1px solid #f3f4f6}
+.opt-single label{font-size:12px;color:var(--muted);flex:1}
+.opt-single input{border:1px solid var(--border);border-radius:4px;padding:5px 8px;font-size:13px;font-family:inherit;width:100px;text-align:right}
+.opt-single input:focus{outline:none;border-color:var(--accent)}
+
+/* ── Modal ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:8px;width:740px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.mhdr{padding:14px 20px;background:var(--navy);color:#fff;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between}
+.mhdr h2{font-size:15px}
+.mcls{background:none;border:none;color:#fff;cursor:pointer;font-size:22px;line-height:1}
+.mbdy{padding:18px 20px}
+.mftr{padding:10px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+.btn{padding:7px 16px;border-radius:4px;cursor:pointer;font-size:13px;border:1px solid var(--border);background:#fff;font-family:inherit}
+.btn.pri{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.pri:hover{background:var(--accent2)}
+.btn:hover{background:#f5f5f5}
+.ef{margin-bottom:12px}
+.ef label{display:block;font-weight:600;font-size:11px;color:var(--muted);margin-bottom:4px}
+.ef input,.ef textarea{width:100%;border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-size:13px;font-family:inherit}
+.ef textarea{resize:vertical}
+.ep{background:#f9fafb;border:1px solid var(--border);border-radius:4px;padding:14px;font-size:13px;line-height:1.6}
+.ep table{width:100%;border-collapse:collapse;margin:10px 0;font-size:12px}
+.ep th{background:var(--navy);color:#fff;padding:6px 8px;text-align:left}
+.ep td{padding:5px 8px;border-bottom:1px solid #e5e7eb}
+.ep tr:nth-child(even) td{background:#f3f4f6}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:20px;right:20px;background:#374151;color:#fff;padding:9px 16px;border-radius:6px;font-size:13px;z-index:200;opacity:0;transform:translateY(8px);transition:all .3s;pointer-events:none}
+.toast.on{opacity:1;transform:translateY(0)}
+.toast.ok{background:#15803d}
+.toast.err{background:var(--red)}
+</style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<header class="app-hdr">
+  <button class="hbtn" id="pgToggle" onclick="toggleSidebar()" title="Pages">&#9776; Pages</button>
+  <div class="hdr-sep"></div>
+  <h1>&#127925; Import Pricing Calculator 2025</h1>
+  <div class="hdr-sep"></div>
+  <div class="vgrp" id="viewGrp">
+    <button class="vbtn on" id="vFull"     onclick="setView('full')">Full</button>
+    <button class="vbtn"    id="vWork"     onclick="setView('workings')">Workings</button>
+    <button class="vbtn"    id="vCust"     onclick="setView('customer')">Customer</button>
+  </div>
+  <div class="sp"></div>
+  <span class="save-ind" id="saveInd">&#10003; Saved</span>
+  <button class="hbtn" id="hPrint" onclick="printPage()">&#128438; Print</button>
+  <button class="hbtn" onclick="showEmail()">&#128140; Email</button>
+  <button class="hbtn" onclick="toggleOptScreen()" id="hOpts">&#9881; Options</button>
+  <div class="hdr-sep"></div>
+  <button class="hbtn pri" id="hSave" onclick="savePage()">&#128190; Save</button>
+  <button class="hbtn dng" id="hDel"  onclick="deletePage()">&#128465; Delete</button>
+</header>
+
+<!-- ── Sidebar (slide-out overlay) ── -->
+<div class="sb-backdrop" id="sbBackdrop" onclick="closeSidebar()"></div>
+<div class="sidebar" id="sidebar">
+  <div class="sb-hdr">
+    <span>Pages</span>
+    <div class="sb-hdr-btns">
+      <button class="new-btn" onclick="createPage()">+ New</button>
+      <button class="sb-close" onclick="closeSidebar()" title="Close">&#215;</button>
+    </div>
+  </div>
+  <div class="page-list" id="pageList"></div>
+</div>
+
+<!-- ── Calc Screen ── -->
+<div class="main" id="calcScreen">
+  <div class="empty" id="emptyState">
+    <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+    <p>No page selected</p>
+    <small>Open the Pages panel or create a new page</small>
+    <div style="display:flex;gap:8px;margin-top:6px">
+      <button class="hbtn on" onclick="toggleSidebar()">&#9776; Open Pages</button>
+      <button class="hbtn pri" onclick="createPage()">+ New Page</button>
+    </div>
+  </div>
+
+  <div class="pg-content" id="pgContent" style="display:none">
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <label>Customer:</label>
+      <input type="text" id="custInp" placeholder="Customer name…" list="custList" autocomplete="off">
+      <datalist id="custList"></datalist>
+      <label>Date:</label>
+      <input type="date" id="dateInp">
+      <div class="hdr-sep" style="height:22px"></div>
+      <button class="tbtn"     onclick="insertRow('data')"  title="Insert product row above selected">+ Row</button>
+      <button class="tbtn sec" onclick="insertRow('header')" title="Insert section header above selected">&#167; Section</button>
+      <div class="hdr-sep" style="height:22px"></div>
+<div class="sp"></div>
+      <span class="insert-hint" id="insertHint" onclick="clearActive()" title="Click to reset insertion point">&#8594; Appending</span>
+    </div>
+
+    <!-- Table -->
+    <div class="tbl-wrap" id="tblWrap">
+      <table class="ptbl" id="ptbl">
+        <thead id="ptblHead"></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── Options Screen ── -->
+<div id="optScreen" style="display:none;flex-direction:column;overflow:hidden;background:#f3f4f6;flex:1">
+  <div class="opt-toolbar">
+    <button class="tbtn" onclick="toggleOptScreen()">&#8592; Back</button>
+    <h2>Options &amp; Dropdown Lists</h2>
+    <div class="sp"></div>
+    <button class="tbtn pri" onclick="saveOptions()">&#128190; Save Options</button>
+  </div>
+  <div class="opt-grid" id="optGrid"></div>
+</div>
+
+<!-- ── Email Modal ── -->
+<div class="overlay" id="emailModal">
+  <div class="modal">
+    <div class="mhdr">
+      <h2>&#128140; Email Template</h2>
+      <button class="mcls" onclick="closeEmail()">&#215;</button>
+    </div>
+    <div class="mbdy">
+      <div class="ef"><label>To:</label><input type="text" id="eTo" placeholder="recipient@example.com"></div>
+      <div class="ef"><label>CC:</label><input type="text" id="eCC" value="pbs@unitedfisheries.co.nz"></div>
+      <div class="ef"><label>Subject:</label><input type="text" id="eSubj"></div>
+      <div class="ef">
+        <label>Notes (one per line):</label>
+        <textarea id="eNotes" rows="9"></textarea>
+      </div>
+      <button class="btn" onclick="togglePreview()">&#128065; Preview</button>
+      <div id="previewWrap" style="margin-top:12px;display:none">
+        <div class="ep" id="previewContent"></div>
+      </div>
+    </div>
+    <div class="mftr">
+      <button class="btn" onclick="copyHTML()">&#128203; Copy HTML</button>
+      <button class="btn pri" onclick="closeEmail()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Supabase ───────────────────────────────────────────────────
+const sb = supabase.createClient(
+  'https://xeucnxezdjhocoisbmvk.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhldWNueGV6ZGpob2NvaXNibXZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5MTEwNzcsImV4cCI6MjA4ODQ4NzA3N30.qPLyz9Tt8D5YcY6g9ykQzMQmOLtRJTstuSlRCkI2bGE'
+);
+
+// ── State ─────────────────────────────────────────────────────
+let OPT = {}, pages = [], cur = null, autoTimer = null;
+let viewMode = 'full';      // 'full' | 'workings' | 'customer'
+let activeRowId = null;     // id of row that next insert goes ABOVE
+let optInMem = {};
+let sidebarOpen = false;
+let onOptScreen = false;
+
+// ── Calculations ──────────────────────────────────────────────
+function calc(r) {
+  const n = v => parseFloat(v) || 0;
+  const qty=n(r.quantity), inner=n(r.innerPackSize)||1;
+  const buy=n(r.buyPrice), pkg=n(r.packaging), frt=n(r.freight);
+  const fxm=n(r.fxMisc), fxr=n(r.fxRate), um=n(r.unitedMargin);
+  const mktg=n(r.marketing), nzm=n(r.nzMisc), lf=n(r.localFreight);
+  const cr=n(r.customerRebate), dcr=n(r.dcRate), cm=n(r.customerMargin);
+  const gst=n(r.gst), cfs=n(r.currentFS);
+  const fobCalc    = r.cfrFob==='CFR'?0:frt;
+  const totalInner = (buy+pkg+fobCalc+fxm)*inner;
+  const nzCost     = fxr===0?0:totalInner/fxr;
+  const priceInner = `${r.currency||''} ${totalInner.toFixed(2)}`;
+  const usNet      = um===0?nzCost:nzCost/um;
+  const mkAdded    = usNet+mktg;
+  const miscAdded  = mkAdded+nzm;
+  const lfAdded    = miscAdded+lf*inner;
+  const rebConv    = (100-cr*100)/100;
+  const crAdded    = rebConv===0?lfAdded:lfAdded/rebConv;
+  const sellPrice  = crAdded;
+  const dcCalc     = (100-dcr*100)/100;
+  const retail     = cm===0?0:sellPrice/cm;
+  const dcRetail   = dcCalc===0?0:retail/dcCalc;
+  const inclGST    = dcRetail*gst+dcRetail;
+  const diff       = cfs-sellPrice;
+  const contQty    = inner===0?0:qty/inner;
+  const profitNZD  = (usNet-nzCost)*contQty;
+  return {fobCalc,totalInner,nzCost,priceInner,usNet,mkAdded,miscAdded,lfAdded,
+          rebConv,crAdded,sellPrice,dcCalc,retail,dcRetail,inclGST,diff,contQty,profitNZD};
+}
+
+// ── Helpers ───────────────────────────────────────────────────
+const f   = (v,d=4)  => (isNaN(v)||v==null)?'-':v.toFixed(d);
+const f2  = v         => (isNaN(v)||v==null)?'-':v.toFixed(2);
+const esc = s         => s==null?'':String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const gid = ()        => Math.random().toString(36).slice(2,10);
+
+function mkSel(opts,val,rid,fld) {
+  const all=[...opts];
+  if(val&&!all.includes(val)) all.unshift(val);
+  return `<select class="ci" onchange="uf('${rid}','${fld}',this.value)">${all.map(v=>`<option value="${esc(v)}"${v===val?' selected':''}>${esc(v)||'—'}</option>`).join('')}</select>`;
+}
+function mkInp(val,rid,fld,type='text',step='any') {
+  const attrs=type==='number'?`step="${step}" min="0"`:'';
+  return `<input type="${type}" class="ci" value="${esc(val)}" ${attrs} onchange="uf('${rid}','${fld}',this.value)" oninput="ufl('${rid}','${fld}',this.value)">`;
+}
+
+// ── Default row ───────────────────────────────────────────────
+const NUM_FIELDS=new Set(['innerPackSize','outerPackSize','quantity','buyPrice','packaging','freight',
+  'fxMisc','fxRate','unitedMargin','marketing','nzMisc','localFreight','customerRebate','dcRate',
+  'customerMargin','gst','currentFS','corePercent']);
+
+function newDataRow(base) {
+  const d={id:gid(),description:'',grade:'',innerPackSize:1,outerPackSize:5,quantity:1,
+    country:'',supplier:'',indentReplen:'Indent',service:'Retail',
+    quote:'',miscDesc:'',productReq:'',corePercent:0,
+    currency:'AUD',buyPrice:0,cfrFob:'CFR',packaging:0,freight:0,fxMisc:0,fxRate:0,
+    unitedMargin:0.75,marketing:0,nzMisc:0.20,localFreight:0.50,
+    customerRebate:0,dcRate:0.10,customerMargin:0.65,gst:0.15,currentFS:0};
+  if(base&&base.type!=='header'){
+    ['country','supplier','indentReplen','service','currency','cfrFob','fxRate',
+     'unitedMargin','nzMisc','localFreight','customerRebate','dcRate','customerMargin','gst']
+    .forEach(k=>{if(base[k]!==undefined) d[k]=base[k];});
+  }
+  return d;
+}
+
+// ── Row insertion ─────────────────────────────────────────────
+function insertRow(type) {
+  if(!cur) return;
+  const r = type==='header'
+    ? {id:gid(), type:'header', text:''}
+    : newDataRow(getRefRow());
+
+  if(activeRowId) {
+    const idx=cur.rows.findIndex(x=>x.id===activeRowId);
+    if(idx>=0) { cur.rows.splice(idx,0,r); }
+    else       { cur.rows.push(r); }
+  } else {
+    cur.rows.push(r);
+  }
+  activeRowId=r.id;
+  renderTable();
+  schedSave();
+  // Focus first input in new row
+  setTimeout(()=>{
+    const tr=document.querySelector(`tr[data-id="${r.id}"]`);
+    if(tr) (tr.querySelector('input.sec-inp')||tr.querySelector('input,select'))?.focus();
+  },40);
+}
+
+function getRefRow() {
+  // Use active row or last data row for defaults
+  if(activeRowId) {
+    const r=cur.rows.find(x=>x.id===activeRowId);
+    if(r&&r.type!=='header') return r;
+    // If active is a header, look at row before it for defaults
+    const idx=cur.rows.findIndex(x=>x.id===activeRowId);
+    for(let i=idx-1;i>=0;i--) if(cur.rows[i].type!=='header') return cur.rows[i];
+  }
+  return [...cur.rows].reverse().find(r=>r.type!=='header')||null;
+}
+
+// ── Render header ─────────────────────────────────────────────
+function renderHeader() {
+  const thead=document.getElementById('ptblHead');
+  if(viewMode==='customer'){
+    thead.innerHTML=`<tr class="ch" style="background:var(--g-prod)">
+      <th class="w34 sc g-act">#</th>
+      <th class="w100">Country</th><th class="w120">Supplier</th>
+      <th class="w100">Type</th><th class="w90">Service</th><th class="w70">Qty(kg)</th>
+      <th class="w150">Description</th><th class="w80">Grade</th>
+      <th class="w70">Inner(kg)</th><th class="w70">Outer Pk</th>
+      <th class="w100">Misc Desc</th><th class="w100">Prod Req</th>
+      <th class="w90" style="background:var(--g-cust)">Sell Price (NZD)</th>
+      <th class="w56 g-act"></th>
+    </tr>`;
+    return;
+  }
+  const hw=viewMode==='workings';
+  const hs=hw?'style="display:none"':'';
+  thead.innerHTML=`
+  <tr class="gh">
+    <th rowspan="2" class="g-act sc w34">#</th>
+    <th colspan="5" class="g-prod">PRODUCT</th>
+    <th colspan="8" class="g-det">DETAILS</th>
+    <th colspan="7" class="g-fx">FOREIGN PRICING</th>
+    <th colspan="${hw?2:4}" class="g-nz">NZ COST &#x25BC;</th>
+    <th colspan="${hw?5:8}" class="g-united">UNITED PRICING</th>
+    <th colspan="${hw?7:11}" class="g-cust">CUSTOMER PRICING</th>
+    <th colspan="4" class="g-ana">ANALYSIS</th>
+    <th rowspan="2" class="g-act w56"></th>
+  </tr>
+  <tr class="ch">
+    <th class="w150">Description</th><th class="w80">Grade</th>
+    <th class="w70">Inner(kg)</th><th class="w70">Outer Pk</th><th class="w70">Qty(kg)</th>
+    <th class="w100">Country</th><th class="w120">Supplier</th><th class="w100">Type</th>
+    <th class="w90">Service</th><th class="w70">Quote</th>
+    <th class="w100">Misc Desc</th><th class="w100">Prod Req</th><th class="w60">Core%</th>
+    <th class="w60">Curr.</th><th class="w80">Buy /kg</th><th class="w70">CFR/FOB</th>
+    <th class="w80">Pkg/kg</th><th class="w80">Frt/kg</th><th class="w80">FX Misc/kg</th><th class="w80">FX Rate</th>
+    <th class="w90" ${hs}>FOB Calc</th>
+    <th class="w90">Total/Inner</th><th class="w90">NZ$ Cost</th>
+    <th class="w110" ${hs}>Price(Inner)</th>
+    <th class="w80">US Margin</th><th class="w90">US Net</th>
+    <th class="w80">Mktg/Inn</th><th class="w90" ${hs}>Mktg+</th>
+    <th class="w80">NZ Misc</th><th class="w90" ${hs}>Misc+</th>
+    <th class="w80">LF/kg</th><th class="w90">LF Added</th>
+    <th class="w90">Cust Reb.</th><th class="w90" ${hs}>Reb.Conv</th>
+    <th class="w90" ${hs}>CR Added</th>
+    <th class="w90">Sell Price</th>
+    <th class="w80">DC Rate</th><th class="w90" ${hs}>DC Calc</th>
+    <th class="w90">Cust Mgn</th><th class="w90">Retail</th><th class="w90">DC Retail</th>
+    <th class="w70">GST</th><th class="w90">Incl.GST</th>
+    <th class="w80">Curr.FS</th>
+    <th class="w90">Diff.</th><th class="w80">Cont.Qty</th><th class="w90">Profit NZD</th>
+  </tr>`;
+}
+
+// ── Render section header row ─────────────────────────────────
+function renderSecRow(r, i) {
+  const act=r.id===activeRowId?' is-active':'';
+  return `<tr class="sec-row${act}" data-id="${r.id}" onclick="setActive('${r.id}')">
+    <td class="sec-rn sc">&#167;</td>
+    <td class="sec-cell" colspan="100">
+      <input class="sec-inp" value="${esc(r.text)}" placeholder="Section header — click to enter title…"
+        onchange="uf('${r.id}','text',this.value)" oninput="uf('${r.id}','text',this.value)">
+    </td>
+    <td class="sec-act ac">
+      <button class="dup-btn" onclick="dupRow('${r.id}')" title="Duplicate section">&#10697;</button>
+      <button class="del-btn" onclick="delRow('${r.id}')" title="Delete section">&#10005;</button>
+    </td>
+  </tr>`;
+}
+
+// ── Render data row (full / workings) ─────────────────────────
+function renderFullRow(r, i) {
+  const c=calc(r), hw=viewMode==='workings';
+  const hs=hw?'style="display:none"':'';
+  const dC=c.diff<0?'neg':'pos', pC=c.profitNZD<0?'neg':'pos';
+  const act=r.id===activeRowId?' is-active':'';
+  return `<tr class="dr${act}" data-id="${r.id}" onclick="setActive('${r.id}')">
+    <td class="rn sc w34">${i+1}</td>
+    <td class="w150">${mkInp(r.description,r.id,'description')}</td>
+    <td class="w80">${mkInp(r.grade,r.id,'grade')}</td>
+    <td class="w70">${mkInp(r.innerPackSize,r.id,'innerPackSize','number','0.001')}</td>
+    <td class="w70">${mkInp(r.outerPackSize,r.id,'outerPackSize','number','1')}</td>
+    <td class="w70">${mkInp(r.quantity,r.id,'quantity','number','0.001')}</td>
+    <td class="w100">${mkSel(OPT.countries||[],r.country,r.id,'country')}</td>
+    <td class="w120">${mkSel(OPT.suppliers||[],r.supplier,r.id,'supplier')}</td>
+    <td class="w100">${mkSel(OPT.types||[],r.indentReplen,r.id,'indentReplen')}</td>
+    <td class="w90">${mkSel(OPT.services||[],r.service,r.id,'service')}</td>
+    <td class="w70">${mkInp(r.quote,r.id,'quote')}</td>
+    <td class="w100">${mkInp(r.miscDesc,r.id,'miscDesc')}</td>
+    <td class="w100">${mkInp(r.productReq,r.id,'productReq')}</td>
+    <td class="w60">${mkInp(r.corePercent,r.id,'corePercent','number','0.01')}</td>
+    <td class="w60">${mkSel(OPT.currencies||[],r.currency,r.id,'currency')}</td>
+    <td class="w80">${mkInp(r.buyPrice,r.id,'buyPrice','number','0.0001')}</td>
+    <td class="w70">${mkSel(OPT.cfrfob||[],r.cfrFob,r.id,'cfrFob')}</td>
+    <td class="w80">${mkInp(r.packaging,r.id,'packaging','number','0.0001')}</td>
+    <td class="w80">${mkInp(r.freight,r.id,'freight','number','0.0001')}</td>
+    <td class="w80">${mkInp(r.fxMisc,r.id,'fxMisc','number','0.0001')}</td>
+    <td class="w80">${mkInp(r.fxRate,r.id,'fxRate','number','0.0001')}</td>
+    <td class="cc w90" ${hs}>${f(c.fobCalc)}</td>
+    <td class="cc w90">${f(c.totalInner)}</td>
+    <td class="cc w90">${f(c.nzCost)}</td>
+    <td class="cc w110" style="font-size:11px${hw?';display:none':''}">${esc(c.priceInner)}</td>
+    <td class="w80">${mkInp(r.unitedMargin,r.id,'unitedMargin','number','0.01')}</td>
+    <td class="cc w90">${f(c.usNet)}</td>
+    <td class="w80">${mkInp(r.marketing,r.id,'marketing','number','0.01')}</td>
+    <td class="cc w90" ${hs}>${f(c.mkAdded)}</td>
+    <td class="w80">${mkInp(r.nzMisc,r.id,'nzMisc','number','0.01')}</td>
+    <td class="cc w90" ${hs}>${f(c.miscAdded)}</td>
+    <td class="w80">${mkInp(r.localFreight,r.id,'localFreight','number','0.01')}</td>
+    <td class="cc w90">${f(c.lfAdded)}</td>
+    <td class="w90">${mkInp(r.customerRebate,r.id,'customerRebate','number','0.001')}</td>
+    <td class="cc w90" ${hs}>${f(c.rebConv)}</td>
+    <td class="cc w90" ${hs}>${f(c.crAdded)}</td>
+    <td class="cc w90 bold">${f(c.sellPrice)}</td>
+    <td class="w80">${mkInp(r.dcRate,r.id,'dcRate','number','0.001')}</td>
+    <td class="cc w90" ${hs}>${f(c.dcCalc)}</td>
+    <td class="w90">${mkInp(r.customerMargin,r.id,'customerMargin','number','0.01')}</td>
+    <td class="cc w90">${f(c.retail)}</td>
+    <td class="cc w90">${f(c.dcRetail)}</td>
+    <td class="w70">${mkInp(r.gst,r.id,'gst','number','0.01')}</td>
+    <td class="cc w90 bold">${f(c.inclGST)}</td>
+    <td class="w80">${mkInp(r.currentFS,r.id,'currentFS','number','0.01')}</td>
+    <td class="cc w90 ${dC}">${f(c.diff)}</td>
+    <td class="cc w80">${f2(c.contQty)}</td>
+    <td class="cc w90 bold ${pC}">$${f2(c.profitNZD)}</td>
+    <td class="ac"><button class="dup-btn" onclick="dupRow('${r.id}')" title="Duplicate">&#10697;</button><button class="del-btn" onclick="delRow('${r.id}')" title="Delete">&#10005;</button></td>
+  </tr>`;
+}
+
+// ── Render data row (customer view) ──────────────────────────
+function renderCustRow(r, i) {
+  const c=calc(r), act=r.id===activeRowId?' is-active':'';
+  return `<tr class="dr${act}" data-id="${r.id}" onclick="setActive('${r.id}')">
+    <td class="rn sc w34">${i+1}</td>
+    <td class="w100">${mkSel(OPT.countries||[],r.country,r.id,'country')}</td>
+    <td class="w120">${mkSel(OPT.suppliers||[],r.supplier,r.id,'supplier')}</td>
+    <td class="w100">${mkSel(OPT.types||[],r.indentReplen,r.id,'indentReplen')}</td>
+    <td class="w90">${mkSel(OPT.services||[],r.service,r.id,'service')}</td>
+    <td class="w70">${mkInp(r.quantity,r.id,'quantity','number','0.001')}</td>
+    <td class="w150">${mkInp(r.description,r.id,'description')}</td>
+    <td class="w80">${mkInp(r.grade,r.id,'grade')}</td>
+    <td class="w70">${mkInp(r.innerPackSize,r.id,'innerPackSize','number','0.001')}</td>
+    <td class="w70">${mkInp(r.outerPackSize,r.id,'outerPackSize','number','1')}</td>
+    <td class="w100">${mkInp(r.miscDesc,r.id,'miscDesc')}</td>
+    <td class="w100">${mkInp(r.productReq,r.id,'productReq')}</td>
+    <td class="cc w90 bold">${f(c.sellPrice)}</td>
+    <td class="ac"><button class="dup-btn" onclick="dupRow('${r.id}')" title="Duplicate">&#10697;</button><button class="del-btn" onclick="delRow('${r.id}')" title="Delete">&#10005;</button></td>
+  </tr>`;
+}
+
+function renderRow(r, i) {
+  return r.type==='header' ? renderSecRow(r,i) : (viewMode==='customer' ? renderCustRow(r,i) : renderFullRow(r,i));
+}
+
+function renderTable() {
+  if(!cur) return;
+  renderHeader();
+  // count display rows (exclude header type from numbering)
+  let dataIdx=0;
+  const rows=cur.rows.map(r=>{
+    if(r.type==='header') return renderSecRow(r, 0);
+    return renderFullRow(r, dataIdx++) || renderCustRow(r, dataIdx-1);
+  });
+  // Re-render properly with correct data index
+  dataIdx=0;
+  document.getElementById('tbody').innerHTML=cur.rows.map(r=>{
+    if(r.type==='header') return renderSecRow(r,0);
+    return viewMode==='customer'?renderCustRow(r,dataIdx++):renderFullRow(r,dataIdx++);
+  }).join('')+
+  `<tr class="add-row-tr"><td colspan="100">
+    <button class="add-row-btn" onclick="insertRow('data')">+ Add Product Row</button>
+    &nbsp;&nbsp;
+    <button class="add-row-btn" style="background:#1e3a5f" onclick="insertRow('header')">&#167; Add Section Header</button>
+  </td></tr>`;
+  updateInsertHint();
+}
+
+// ── Active row selection ──────────────────────────────────────
+function setActive(rid) {
+  activeRowId = rid;
+  document.querySelectorAll('tr[data-id]').forEach(tr=>{
+    tr.classList.toggle('is-active', tr.dataset.id===rid);
+  });
+  updateInsertHint();
+}
+
+function clearActive() {
+  activeRowId = null;
+  document.querySelectorAll('tr[data-id]').forEach(tr=>tr.classList.remove('is-active'));
+  updateInsertHint();
+}
+
+function updateInsertHint() {
+  const hint=document.getElementById('insertHint');
+  if(!hint) return;
+  if(activeRowId && cur) {
+    const idx=cur.rows.findIndex(x=>x.id===activeRowId);
+    if(idx>=0) {
+      const r=cur.rows[idx];
+      const label=r.type==='header'
+        ? `"${r.text||'section'}"` : `row ${idx+1}`;
+      hint.textContent=`&#8593; Above ${label} (click to reset)`;
+      hint.innerHTML=`&#8593; Above ${label} <small style="opacity:.7">(click to reset)</small>`;
+      hint.classList.add('set');
+      return;
+    }
+  }
+  hint.innerHTML='&#8594; Appending to end';
+  hint.classList.remove('set');
+}
+
+// ── Live recalc (update only calc cells without full re-render)
+function uf(rid, fld, val) {
+  if(!cur) return;
+  const r=cur.rows.find(x=>x.id===rid);
+  if(!r) return;
+  r[fld]=NUM_FIELDS.has(fld)?(parseFloat(val)||0):val;
+  schedSave();
+}
+
+function ufl(rid, fld, val) {
+  uf(rid, fld, val);
+  const r=cur.rows.find(x=>x.id===rid);
+  if(!r||r.type==='header') return;
+  const c=calc(r);
+  const tr=document.querySelector(`tr[data-id="${rid}"]`);
+  if(!tr) return;
+  const cc=tr.querySelectorAll('.cc');
+  if(viewMode==='customer'){ if(cc[0]) cc[0].textContent=f(c.sellPrice); return; }
+  const hw=viewMode==='workings';
+  const allVals=[
+    [c.fobCalc,4,hw],[c.totalInner,4,false],[c.nzCost,4,false],[c.priceInner,4,hw],
+    [c.usNet,4,false],[c.mkAdded,4,hw],[c.miscAdded,4,hw],[c.lfAdded,4,false],
+    [c.rebConv,4,hw],[c.crAdded,4,hw],[c.sellPrice,4,false],[c.dcCalc,4,hw],
+    [c.retail,4,false],[c.dcRetail,4,false],[c.inclGST,4,false],
+    [c.diff,4,false],[c.contQty,2,false],[c.profitNZD,2,false,'$']
+  ];
+  let ci=0;
+  allVals.forEach(([v,d,hidden,pfx])=>{
+    if(hidden) return;
+    const cell=cc[ci++];
+    if(!cell) return;
+    cell.textContent=(pfx||'')+f(v,d);
+  });
+  // recolor
+  cc.forEach(cell=>{
+    const t=cell.textContent;
+    if(t===f(c.diff,4)){ cell.className='cc w90 '+(c.diff<0?'neg':'pos'); }
+    if(t==='$'+f2(c.profitNZD)){ cell.className='cc w90 bold '+(c.profitNZD<0?'neg':'pos'); }
+  });
+}
+
+// ── Row management ─────────────────────────────────────────────
+function delRow(rid) {
+  if(!cur) return;
+  const dataCount=cur.rows.filter(r=>r.type!=='header').length;
+  if(dataCount<=1 && cur.rows.find(r=>r.id===rid)?.type!=='header' && !confirm('Delete the last product row?')) return;
+  if(activeRowId===rid) { activeRowId=null; }
+  cur.rows=cur.rows.filter(x=>x.id!==rid);
+  renderTable();
+  schedSave();
+}
+
+function dupRow(rid) {
+  if(!cur) return;
+  const idx=cur.rows.findIndex(x=>x.id===rid);
+  if(idx<0) return;
+  const copy=JSON.parse(JSON.stringify(cur.rows[idx]));
+  copy.id=gid();
+  cur.rows.splice(idx+1,0,copy);
+  activeRowId=copy.id;
+  renderTable();
+  schedSave();
+  toast('Row duplicated','ok');
+}
+
+
+// ── View modes ────────────────────────────────────────────────
+function setView(mode) {
+  viewMode=mode;
+  ['full','workings','customer'].forEach(m=>
+    document.getElementById('v'+m[0].toUpperCase()+m.slice(1))?.classList.toggle('on',m===mode)
+  );
+  if(cur) renderTable();
+}
+
+function printPage() {
+  if(!cur){ toast('No page selected','err'); return; }
+  window.print();
+}
+
+// ── Sidebar ───────────────────────────────────────────────────
+function openSidebar() {
+  sidebarOpen=true;
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sbBackdrop').classList.add('on');
+  document.getElementById('pgToggle').classList.add('on');
+}
+function closeSidebar() {
+  sidebarOpen=false;
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sbBackdrop').classList.remove('on');
+  document.getElementById('pgToggle').classList.remove('on');
+}
+function toggleSidebar() { sidebarOpen?closeSidebar():openSidebar(); }
+
+// ── Page management ───────────────────────────────────────────
+async function init() {
+  await loadOptions();
+  document.getElementById('custInp').addEventListener('input', hdrChange);
+  document.getElementById('dateInp').addEventListener('change', hdrChange);
+  await loadList();
+}
+
+async function loadOptions() {
+  const {data,error}=await sb.from('options').select('data').eq('id',1).single();
+  if(data){
+    OPT=data.data;
+    optInMem=JSON.parse(JSON.stringify(OPT));
+    populateCustList();
+  } else {
+    toast('Could not load options','err');
+  }
+}
+
+function populateCustList() {
+  const dl=document.getElementById('custList');
+  dl.innerHTML='';
+  (OPT.customers||[]).forEach(c=>{const o=document.createElement('option');o.value=c;dl.appendChild(o);});
+}
+
+async function loadList() {
+  const {data,error}=await sb.from('pages').select('id,customer_name,date').order('updated_at',{ascending:false});
+  if(!error){
+    pages=(data||[]).map(p=>({id:p.id,customerName:p.customer_name,date:p.date}));
+    renderSidebar();
+  } else { toast('Cannot load pages','err'); }
+}
+
+function renderSidebar() {
+  const el=document.getElementById('pageList');
+  if(!pages.length){el.innerHTML='<div class="sb-empty">No pages yet.<br>Click <b>+ New</b> to start.</div>';return;}
+  el.innerHTML=pages.map(p=>`
+    <div class="pg-item${cur&&cur.id===p.id?' active':''}" onclick="loadPage('${p.id}');closeSidebar()">
+      <div class="pg-name">${esc(p.customerName||'Unnamed')}</div>
+      <div class="pg-date">${p.date||'No date'}</div>
+    </div>`).join('');
+}
+
+async function loadPage(id) {
+  const {data,error}=await sb.from('pages').select('*').eq('id',id).single();
+  if(!error){
+    cur={id:data.id,customerName:data.customer_name,date:data.date,rows:data.rows||[]};
+    activeRowId=null;
+    showContent();
+    renderSidebar();
+  } else { toast('Error loading page','err'); }
+}
+
+function showContent() {
+  document.getElementById('emptyState').style.display='none';
+  document.getElementById('pgContent').style.display='flex';
+  document.getElementById('custInp').value=cur.customerName||'';
+  document.getElementById('dateInp').value=cur.date||today();
+  renderTable();
+}
+
+async function createPage() {
+  const id=gid();
+  const pg={id,customerName:'New Customer',date:today(),rows:[{id:gid(),type:'header',text:'New Section'},newDataRow()]};
+  const {error}=await sb.from('pages').insert({id:pg.id,customer_name:pg.customerName,date:pg.date,rows:pg.rows,updated_at:new Date().toISOString()});
+  if(!error){
+    cur=pg;
+    activeRowId=null;
+    pages.unshift({id:cur.id,customerName:cur.customerName,date:cur.date});
+    renderSidebar();
+    showContent();
+    closeSidebar();
+    toast('Page created','ok');
+    setTimeout(()=>document.getElementById('custInp').select(),50);
+  } else { toast('Error creating page','err'); }
+}
+
+async function savePage() {
+  if(!cur) return;
+  const {error}=await sb.from('pages').update({customer_name:cur.customerName,date:cur.date,rows:cur.rows,updated_at:new Date().toISOString()}).eq('id',cur.id);
+  if(!error){
+    const idx=pages.findIndex(p=>p.id===cur.id);
+    if(idx>=0){pages[idx].customerName=cur.customerName;pages[idx].date=cur.date;}
+    renderSidebar();
+    const si=document.getElementById('saveInd');
+    si.classList.add('on');
+    setTimeout(()=>si.classList.remove('on'),2000);
+  } else { toast('Error saving','err'); }
+}
+
+function schedSave() {
+  if(autoTimer) clearTimeout(autoTimer);
+  autoTimer=setTimeout(savePage,1500);
+}
+
+async function deletePage() {
+  if(!cur) return;
+  if(!confirm(`Delete "${cur.customerName}"? This cannot be undone.`)) return;
+  const {error}=await sb.from('pages').delete().eq('id',cur.id);
+  if(!error){
+    pages=pages.filter(p=>p.id!==cur.id);
+    cur=null; activeRowId=null;
+    document.getElementById('emptyState').style.display='flex';
+    document.getElementById('pgContent').style.display='none';
+    renderSidebar();
+    toast('Page deleted','ok');
+  } else { toast('Error deleting','err'); }
+}
+
+function hdrChange() {
+  if(!cur) return;
+  cur.customerName=document.getElementById('custInp').value;
+  cur.date=document.getElementById('dateInp').value;
+  renderSidebar();
+  schedSave();
+}
+
+// ── Options Screen ────────────────────────────────────────────
+function toggleOptScreen() {
+  onOptScreen=!onOptScreen;
+  document.getElementById('calcScreen').style.display=onOptScreen?'none':'flex';
+  document.getElementById('optScreen').style.display=onOptScreen?'flex':'none';
+  document.getElementById('hOpts').classList.toggle('on',onOptScreen);
+  ['hSave','hDel','hPrint','viewGrp'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display=onOptScreen?'none':'';
+  });
+  if(onOptScreen){ optInMem=JSON.parse(JSON.stringify(OPT)); renderOptGrid(); }
+}
+
+function renderOptGrid() {
+  const g=document.getElementById('optGrid');
+  g.innerHTML='';
+  [
+    {key:'countries', label:'Countries',       tall:true},
+    {key:'suppliers', label:'Suppliers',        tall:true},
+    {key:'customers', label:'Customers',        tall:true},
+    {key:'currencies',label:'Currencies',       tall:false},
+    {key:'services',  label:'Service Types',    tall:false},
+    {key:'types',     label:'Indent / Replen',  tall:false},
+    {key:'cfrfob',    label:'CFR / FOB',        tall:false},
+  ].forEach(({key,label,tall})=>g.appendChild(makeListCard(key,label,tall)));
+  g.appendChild(makePresetCard('rebatePresets','Customer Rebate Presets'));
+  g.appendChild(makePresetCard('dcRatePresets','DC Rate Presets'));
+  g.appendChild(makeSingleCard());
+}
+
+function makeListCard(key,label,tall) {
+  const div=document.createElement('div'); div.className='opt-card';
+  const items=optInMem[key]||[];
+  div.innerHTML=`
+    <div class="opt-card-hdr"><span>${label}</span><small>${items.length} items</small></div>
+    <div class="opt-body">
+      <div class="opt-list${tall?' tall':''}" id="ol-${key}">
+        ${items.map((v,i)=>`<span class="opt-tag">${esc(v)}<button onclick="removeOpt('${key}',${i})">&#215;</button></span>`).join('')}
+      </div>
+      <div class="opt-add">
+        <input type="text" id="oi-${key}" placeholder="Add new…" onkeydown="if(event.key==='Enter')addOpt('${key}')">
+        <button onclick="addOpt('${key}')">Add</button>
+      </div>
+    </div>`;
+  return div;
+}
+
+function makePresetCard(key,label) {
+  const div=document.createElement('div'); div.className='opt-card';
+  const items=optInMem[key]||[];
+  div.innerHTML=`
+    <div class="opt-card-hdr"><span>${label}</span><small>% values</small></div>
+    <div class="opt-body">
+      <div class="opt-num-list" id="ol-${key}">
+        ${items.map((v,i)=>`<span class="opt-num-tag">${(v*100).toFixed(3)}%<button onclick="removeOpt('${key}',${i})">&#215;</button></span>`).join('')}
+      </div>
+      <div class="opt-add">
+        <input type="number" id="oi-${key}" placeholder="e.g. 2.5" step="0.001" min="0" max="100" onkeydown="if(event.key==='Enter')addOptNum('${key}')">
+        <button onclick="addOptNum('${key}')">Add %</button>
+      </div>
+    </div>`;
+  return div;
+}
+
+function makeSingleCard() {
+  const div=document.createElement('div'); div.className='opt-card';
+  div.innerHTML=`
+    <div class="opt-card-hdr"><span>Rates &amp; Constants</span></div>
+    <div class="opt-single">
+      <label>Finance Rate (% PA)</label>
+      <input type="number" step="0.001" value="${optInMem.financeRatePct||7.55}" oninput="optInMem.financeRatePct=parseFloat(this.value)||0">
+    </div>
+    <div class="opt-single">
+      <label>Storage Rate (MT/Week)</label>
+      <input type="number" step="0.01" value="${optInMem.storageRateMT||13.3}" oninput="optInMem.storageRateMT=parseFloat(this.value)||0">
+    </div>`;
+  return div;
+}
+
+function addOpt(key) {
+  const inp=document.getElementById(`oi-${key}`);
+  const val=(inp.value||'').trim();
+  if(!val){toast('Enter a value','err');return;}
+  if(!optInMem[key]) optInMem[key]=[];
+  if(optInMem[key].includes(val)){toast('Already in list','err');return;}
+  optInMem[key].push(val); inp.value=''; renderOptGrid(); toast(`Added "${val}"`, 'ok');
+}
+
+function addOptNum(key) {
+  const inp=document.getElementById(`oi-${key}`);
+  const pct=parseFloat(inp.value);
+  if(isNaN(pct)){toast('Enter a number','err');return;}
+  if(!optInMem[key]) optInMem[key]=[];
+  optInMem[key].push(pct/100); inp.value=''; renderOptGrid(); toast(`Added ${pct}%`,'ok');
+}
+
+function removeOpt(key,idx) {
+  if(!optInMem[key]) return;
+  optInMem[key].splice(idx,1); renderOptGrid();
+}
+
+async function saveOptions() {
+  OPT=JSON.parse(JSON.stringify(optInMem));
+  const {error}=await sb.from('options').upsert({id:1,data:OPT,updated_at:new Date().toISOString()});
+  if(!error){
+    populateCustList();
+    if(cur) renderTable();
+    toast('Options saved','ok');
+  } else { toast('Error saving options','err'); }
+}
+
+// ── Email ─────────────────────────────────────────────────────
+function showEmail() {
+  if(!cur){toast('No page selected','err');return;}
+  document.getElementById('eSubj').value=`Pricing Quote – ${cur.customerName||'Customer'} – ${cur.date||today()}`;
+  document.getElementById('eNotes').value=[
+    '• The above pricing is based on the current FX rate and is subject to final confirmation.',
+    '• All Replenishment prices quoted include 2.5% Rebate & Local Freight.',
+    "• All Indent Prices quoted exclude all Rebates & Freight and is direct to a nominated DC's.",
+    '• ETA to be confirmed.','• Based on a 40ft FCL (circa. 2000 cartons).',
+    "• Any extra charges due to delays in devanning and retrieving FCL's from your DC will be charged at the commencement of the job.",
+    '• Any extra charges "Force Majeure" claimed by shipping companies will be passed on at the commencement of the job.',
+    '','Kind Regards,',
+  ].join('\n');
+  document.getElementById('previewWrap').style.display='none';
+  document.getElementById('emailModal').classList.add('open');
+}
+
+function closeEmail(){document.getElementById('emailModal').classList.remove('open');}
+
+function togglePreview() {
+  const w=document.getElementById('previewWrap');
+  if(w.style.display==='none'){buildPreview();w.style.display='block';}else w.style.display='none';
+}
+
+function buildPreview() {
+  if(!cur) return;
+  let secLabel='';
+  const rows=cur.rows.map(r=>{
+    if(r.type==='header'){
+      secLabel=r.text;
+      return `<tr><td colspan="8" style="background:#1a2744;color:#fff;font-weight:700;padding:6px 8px;font-size:12px">${esc(r.text)}</td></tr>`;
+    }
+    const c=calc(r);
+    return `<tr><td>${esc(r.description)}</td><td>${esc(r.grade)}</td><td>${esc(r.indentReplen)}</td><td>${esc(r.service)}</td><td>${r.innerPackSize}kg</td><td>${r.currency} ${parseFloat(r.buyPrice).toFixed(4)}</td><td>$${f(c.sellPrice)}</td><td>$${f(c.inclGST)}</td></tr>`;
+  }).join('');
+  const notes=document.getElementById('eNotes').value.split('\n').filter(l=>l.trim()).map(l=>`<p style="margin:3px 0">${esc(l)}</p>`).join('');
+  document.getElementById('previewContent').innerHTML=`
+    <p>Dear ${esc(cur.customerName||'Customer')},</p><br>
+    <p>Please see the current offer below:</p>
+    <table><thead><tr><th>Description</th><th>Grade</th><th>Type</th><th>Service</th><th>Inner Pk</th><th>Buy Price</th><th>Sell Price (NZD)</th><th>Incl. GST</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+    <p><strong>Note:</strong></p>${notes}`;
+}
+
+async function copyHTML() {
+  buildPreview();
+  const html=document.getElementById('previewContent').innerHTML;
+  try{await navigator.clipboard.writeText(html);toast('HTML copied','ok');}
+  catch{toast('Select and copy manually','err');}
+}
+
+function today(){return new Date().toISOString().slice(0,10);}
+
+function toast(msg,type='') {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast on'+(type?' '+type:'');
+  setTimeout(()=>t.className='toast',3000);
+}
+
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
