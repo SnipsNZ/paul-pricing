@@ -8,10 +8,10 @@
 <style>
 :root{
   --navy:#1a2744;--navy2:#243360;--accent:#2563eb;--accent2:#1d4ed8;
-  --calc:#dbeafe;--border:#d1d5db;--text:#111827;--muted:#6b7280;
+  --calc:#efefef;--border:#d1d5db;--text:#111827;--muted:#6b7280;
   --green:#15803d;--red:#dc2626;
-  --g-prod:#1e3a5f;--g-det:#1e5f5a;--g-fx:#3d5a1e;
-  --g-nz:#5f3d1e;--g-united:#3d1e5f;--g-cust:#5f1e3d;--g-ana:#1e3d5f;
+  --g-prod:#2f7012;--g-det:#156082;--g-fx:#b8560c;
+  --g-nz:#856200;--g-united:#7a5000;--g-cust:#0f5070;--g-ana:#2c4060;
   --hdr-bg:#dbeafe;--hdr-border:#3b82f6;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -119,8 +119,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 
 /* Input vs calc column distinction */
 .dr td:has(input.ci),.dr td:has(select.ci){background:#fffef5}
-.inh{background:#2c3e55!important}
-.cth{background:#1e3a8a!important}
+.inh{background:#1f3625!important}
+.cth{background:#3d3d3d!important}
 
 /* Common cell styles */
 .rn{text-align:center;color:var(--muted);font-size:11px;min-width:34px;width:34px;background:#f9fafb}
@@ -131,6 +131,7 @@ input.ci[type=number]::-webkit-inner-spin-button,
 input.ci[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 .cc{background:var(--calc);padding:3px 7px;text-align:right;font-size:11.5px;min-width:88px}
 .cc.neg{color:var(--red)}.cc.pos{color:var(--green)}.cc.bold{font-weight:700}
+.cc.key{background:#fff3cd!important;color:#5a3e00}
 .ac{text-align:center;padding:2px 3px;min-width:56px;width:56px;white-space:nowrap}
 .del-btn,.dup-btn{border:1px solid #e5e7eb;border-radius:3px;cursor:pointer;padding:2px 5px;font-size:11px;background:none}
 .del-btn{color:#9ca3af}.del-btn:hover{background:#fef2f2;border-color:var(--red);color:var(--red)}
@@ -489,10 +490,10 @@ function renderHeader() {
     <th class="inh w70">LF/kg</th><th class="cth w90">LF Added</th>
     <th class="inh w80">Cust Reb.</th><th class="cth w85" ${hs}>Reb.Conv</th>
     <th class="cth w85" ${hs}>CR Added</th>
-    <th class="cth w90">Sell Price</th>
+    <th style="background:#856200" class="w90">Sell Price</th>
     <th class="inh w70">DC Rate</th><th class="cth w85" ${hs}>DC Calc</th>
     <th class="inh w80">Cust Mgn</th><th class="cth w90" ${hs}>Retail</th><th class="cth w90" ${hs}>DC Retail</th>
-    <th class="inh w56">GST</th><th class="cth w90">Incl.GST</th>
+    <th class="inh w56">GST</th><th style="background:#856200" class="w90">Incl.GST</th>
     <th class="inh w80">Curr.FS</th>
     <th class="cth w85">Diff.</th><th class="cth w80">Cont.Qty</th><th class="cth w90">Profit NZD</th>
   </tr>`;
@@ -557,14 +558,14 @@ function renderFullRow(r, i) {
     <td class="w80">${mkInp(r.customerRebate,r.id,'customerRebate','number','0.001')}</td>
     <td class="cc w85" ${hs}>${f(c.rebConv)}</td>
     <td class="cc w85" ${hs}>${f(c.crAdded)}</td>
-    <td class="cc w90 bold">${f(c.sellPrice)}</td>
+    <td class="cc w90 bold key">${f(c.sellPrice)}</td>
     <td class="w70">${mkInp(r.dcRate,r.id,'dcRate','number','0.001')}</td>
     <td class="cc w85" ${hs}>${f(c.dcCalc)}</td>
     <td class="w80">${mkInp(r.customerMargin,r.id,'customerMargin','number','0.01')}</td>
     <td class="cc w90" ${hs}>${f(c.retail)}</td>
     <td class="cc w90" ${hs}>${f(c.dcRetail)}</td>
     <td class="w56">${mkInp(r.gst,r.id,'gst','number','0.01')}</td>
-    <td class="cc w90 bold">${f(c.inclGST)}</td>
+    <td class="cc w90 bold key">${f(c.inclGST)}</td>
     <td class="w80">${mkInp(r.currentFS,r.id,'currentFS','number','0.01')}</td>
     <td class="cc w85 ${dC}">${f(c.diff)}</td>
     <td class="cc w80">${f2(c.contQty)}</td>
@@ -589,7 +590,7 @@ function renderCustRow(r, i) {
     <td class="w65">${mkInp(r.outerPackSize,r.id,'outerPackSize','number','1')}</td>
     <td class="w110">${mkInp(r.miscDesc,r.id,'miscDesc')}</td>
     <td class="w100">${mkInp(r.productReq,r.id,'productReq')}</td>
-    <td class="cc w90 bold">${f(c.sellPrice)}</td>
+    <td class="cc w90 bold key">${f(c.sellPrice)}</td>
     <td class="ac"><button class="dup-btn" onclick="dupRow('${r.id}')" title="Duplicate">&#10697;</button><button class="del-btn" onclick="delRow('${r.id}')" title="Delete">&#10005;</button></td>
   </tr>`;
 }
