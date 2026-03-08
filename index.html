@@ -117,6 +117,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .sec-inp:focus{outline:none;background:rgba(255,255,255,.5)}
 .sec-inp::placeholder{color:#93c5fd;font-weight:400}
 
+/* Input vs calc column distinction */
+.dr td:has(input.ci),.dr td:has(select.ci){background:#fff}
+.inh{background:#2c3e55!important}
+.cth{background:#1e3a8a!important}
+
 /* Common cell styles */
 .rn{text-align:center;color:var(--muted);font-size:11px;min-width:34px;width:34px;background:#f9fafb}
 input.ci,select.ci{border:none;background:transparent;width:100%;font-size:12px;font-family:inherit;padding:3px 6px;height:31px;color:var(--text)}
@@ -461,35 +466,35 @@ function renderHeader() {
     <th colspan="5" class="g-prod">PRODUCT</th>
     <th colspan="8" class="g-det">DETAILS</th>
     <th colspan="7" class="g-fx">FOREIGN PRICING</th>
-    <th colspan="${hw?2:4}" class="g-nz">NZ COST &#x25BC;</th>
-    <th colspan="${hw?5:8}" class="g-united">UNITED PRICING</th>
-    <th colspan="${hw?7:11}" class="g-cust">CUSTOMER PRICING</th>
+    <th colspan="${hw?1:4}" class="g-nz">NZ COST &#x25BC;</th>
+    <th colspan="${hw?6:8}" class="g-united">UNITED PRICING</th>
+    <th colspan="${hw?6:11}" class="g-cust">CUSTOMER PRICING</th>
     <th colspan="4" class="g-ana">ANALYSIS</th>
     <th rowspan="2" class="g-act w56"></th>
   </tr>
   <tr class="ch">
-    <th class="w200">Description</th><th class="w80">Grade</th>
-    <th class="w65">Inner(kg)</th><th class="w65">Outer Pk</th><th class="w70">Qty(kg)</th>
-    <th class="w90">Country</th><th class="w140">Supplier</th><th class="w110">Type</th>
-    <th class="w80">Service</th><th class="w65">Quote</th>
-    <th class="w110">Misc Desc</th><th class="w100">Prod Req</th><th class="w50">Core%</th>
-    <th class="w56">Curr.</th><th class="w80">Buy /kg</th><th class="w60">CFR/FOB</th>
-    <th class="w70">Pkg/kg</th><th class="w70">Frt/kg</th><th class="w80">FX Misc/kg</th><th class="w80">FX Rate</th>
-    <th class="w85" ${hs}>FOB Calc</th>
-    <th class="w90">Total/Inner</th><th class="w90">NZ$ Cost</th>
-    <th class="w110" ${hs}>Price(Inner)</th>
-    <th class="w70">US Margin</th><th class="w90">US Net</th>
-    <th class="w70">Mktg/Inn</th><th class="w85" ${hs}>Mktg+</th>
-    <th class="w70">NZ Misc</th><th class="w85" ${hs}>Misc+</th>
-    <th class="w70">LF/kg</th><th class="w90">LF Added</th>
-    <th class="w80">Cust Reb.</th><th class="w85" ${hs}>Reb.Conv</th>
-    <th class="w85" ${hs}>CR Added</th>
-    <th class="w90">Sell Price</th>
-    <th class="w70">DC Rate</th><th class="w85" ${hs}>DC Calc</th>
-    <th class="w80">Cust Mgn</th><th class="w90">Retail</th><th class="w90">DC Retail</th>
-    <th class="w56">GST</th><th class="w90">Incl.GST</th>
-    <th class="w80">Curr.FS</th>
-    <th class="w85">Diff.</th><th class="w80">Cont.Qty</th><th class="w90">Profit NZD</th>
+    <th class="inh w200">Description</th><th class="inh w80">Grade</th>
+    <th class="inh w65">Inner(kg)</th><th class="inh w65">Outer Pk</th><th class="inh w70">Qty(kg)</th>
+    <th class="inh w90">Country</th><th class="inh w140">Supplier</th><th class="inh w110">Type</th>
+    <th class="inh w80">Service</th><th class="inh w65">Quote</th>
+    <th class="inh w110">Misc Desc</th><th class="inh w100">Prod Req</th><th class="inh w50">Core%</th>
+    <th class="inh w56">Curr.</th><th class="inh w80">Buy /kg</th><th class="inh w60">CFR/FOB</th>
+    <th class="inh w70">Pkg/kg</th><th class="inh w70">Frt/kg</th><th class="inh w80">FX Misc/kg</th><th class="inh w80">FX Rate</th>
+    <th class="cth w85" ${hs}>FOB Calc</th>
+    <th class="cth w90" ${hs}>Total/Inner</th><th class="cth w90">NZ$ Cost</th>
+    <th class="cth w110" ${hs}>Price(Inner)</th>
+    <th class="inh w70">US Margin</th><th class="cth w90">US Net</th>
+    <th class="inh w70">Mktg/Inn</th><th class="cth w85" ${hs}>Mktg+</th>
+    <th class="inh w70">NZ Misc</th><th class="cth w85" ${hs}>Misc+</th>
+    <th class="inh w70">LF/kg</th><th class="cth w90">LF Added</th>
+    <th class="inh w80">Cust Reb.</th><th class="cth w85" ${hs}>Reb.Conv</th>
+    <th class="cth w85" ${hs}>CR Added</th>
+    <th class="cth w90">Sell Price</th>
+    <th class="inh w70">DC Rate</th><th class="cth w85" ${hs}>DC Calc</th>
+    <th class="inh w80">Cust Mgn</th><th class="cth w90" ${hs}>Retail</th><th class="cth w90" ${hs}>DC Retail</th>
+    <th class="inh w56">GST</th><th class="cth w90">Incl.GST</th>
+    <th class="inh w80">Curr.FS</th>
+    <th class="cth w85">Diff.</th><th class="cth w80">Cont.Qty</th><th class="cth w90">Profit NZD</th>
   </tr>`;
 }
 
@@ -538,7 +543,7 @@ function renderFullRow(r, i) {
     <td class="w80">${mkInp(r.fxMisc,r.id,'fxMisc','number','0.0001')}</td>
     <td class="w80">${mkInp(r.fxRate,r.id,'fxRate','number','0.0001')}</td>
     <td class="cc w85" ${hs}>${f(c.fobCalc)}</td>
-    <td class="cc w90">${f(c.totalInner)}</td>
+    <td class="cc w90" ${hs}>${f(c.totalInner)}</td>
     <td class="cc w90">${f(c.nzCost)}</td>
     <td class="cc w110" style="font-size:11px${hw?';display:none':''}">${esc(c.priceInner)}</td>
     <td class="w70">${mkInp(r.unitedMargin,r.id,'unitedMargin','number','0.01')}</td>
@@ -556,8 +561,8 @@ function renderFullRow(r, i) {
     <td class="w70">${mkInp(r.dcRate,r.id,'dcRate','number','0.001')}</td>
     <td class="cc w85" ${hs}>${f(c.dcCalc)}</td>
     <td class="w80">${mkInp(r.customerMargin,r.id,'customerMargin','number','0.01')}</td>
-    <td class="cc w90">${f(c.retail)}</td>
-    <td class="cc w90">${f(c.dcRetail)}</td>
+    <td class="cc w90" ${hs}>${f(c.retail)}</td>
+    <td class="cc w90" ${hs}>${f(c.dcRetail)}</td>
     <td class="w56">${mkInp(r.gst,r.id,'gst','number','0.01')}</td>
     <td class="cc w90 bold">${f(c.inclGST)}</td>
     <td class="w80">${mkInp(r.currentFS,r.id,'currentFS','number','0.01')}</td>
@@ -670,10 +675,10 @@ function ufl(rid, fld, val) {
   if(viewMode==='customer'){ if(cc[0]) cc[0].textContent=f(c.sellPrice); return; }
   const hw=viewMode==='workings';
   const allVals=[
-    [c.fobCalc,2,hw],[c.totalInner,2,false],[c.nzCost,2,false],[c.priceInner,2,hw],
+    [c.fobCalc,2,hw],[c.totalInner,2,hw],[c.nzCost,2,false],[c.priceInner,2,hw],
     [c.usNet,2,false],[c.mkAdded,2,hw],[c.miscAdded,2,hw],[c.lfAdded,2,false],
     [c.rebConv,4,hw],[c.crAdded,2,hw],[c.sellPrice,2,false],[c.dcCalc,4,hw],
-    [c.retail,2,false],[c.dcRetail,2,false],[c.inclGST,2,false],
+    [c.retail,2,hw],[c.dcRetail,2,hw],[c.inclGST,2,false],
     [c.diff,2,false],[c.contQty,2,false],[c.profitNZD,2,false,'$']
   ];
   let ci=0;
@@ -686,7 +691,7 @@ function ufl(rid, fld, val) {
   // recolor
   cc.forEach(cell=>{
     const t=cell.textContent;
-    if(t===f(c.diff,4)){ cell.className='cc w85 '+(c.diff<0?'neg':'pos'); }
+    if(t===f(c.diff)){ cell.className='cc w85 '+(c.diff<0?'neg':'pos'); }
     if(t==='$'+f2(c.profitNZD)){ cell.className='cc w90 bold '+(c.profitNZD<0?'neg':'pos'); }
   });
 }
