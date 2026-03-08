@@ -133,10 +133,12 @@ input.ci[type=number]{text-align:right}
 .add-row-btn:hover{background:var(--accent2)}
 
 /* Column widths */
-.w34{min-width:34px;width:34px}.w56{min-width:56px;width:56px}
-.w60{min-width:60px;width:60px}.w70{min-width:70px;width:70px}.w80{min-width:80px;width:80px}
-.w90{min-width:90px;width:90px}.w100{min-width:100px;width:100px}
-.w110{min-width:110px;width:110px}.w120{min-width:120px;width:120px}.w150{min-width:150px;width:150px}
+.w34{min-width:34px;width:34px}.w50{min-width:50px;width:50px}.w56{min-width:56px;width:56px}
+.w60{min-width:60px;width:60px}.w65{min-width:65px;width:65px}.w70{min-width:70px;width:70px}
+.w80{min-width:80px;width:80px}.w85{min-width:85px;width:85px}.w90{min-width:90px;width:90px}
+.w100{min-width:100px;width:100px}.w110{min-width:110px;width:110px}
+.w120{min-width:120px;width:120px}.w140{min-width:140px;width:140px}
+.w150{min-width:150px;width:150px}.w180{min-width:180px;width:180px}.w200{min-width:200px;width:200px}
 
 /* ── Options Screen ── */
 #optScreen{display:none;flex:1;flex-direction:column;overflow:hidden;background:#f3f4f6}
@@ -435,11 +437,11 @@ function renderHeader() {
   if(viewMode==='customer'){
     thead.innerHTML=`<tr class="ch" style="background:var(--g-prod)">
       <th class="w34 sc g-act">#</th>
-      <th class="w100">Country</th><th class="w120">Supplier</th>
-      <th class="w100">Type</th><th class="w90">Service</th><th class="w70">Qty(kg)</th>
-      <th class="w150">Description</th><th class="w80">Grade</th>
-      <th class="w70">Inner(kg)</th><th class="w70">Outer Pk</th>
-      <th class="w100">Misc Desc</th><th class="w100">Prod Req</th>
+      <th class="w90">Country</th><th class="w140">Supplier</th>
+      <th class="w110">Type</th><th class="w80">Service</th><th class="w70">Qty(kg)</th>
+      <th class="w200">Description</th><th class="w80">Grade</th>
+      <th class="w65">Inner(kg)</th><th class="w65">Outer Pk</th>
+      <th class="w110">Misc Desc</th><th class="w100">Prod Req</th>
       <th class="w90" style="background:var(--g-cust)">Sell Price (NZD)</th>
       <th class="w56 g-act"></th>
     </tr>`;
@@ -460,28 +462,28 @@ function renderHeader() {
     <th rowspan="2" class="g-act w56"></th>
   </tr>
   <tr class="ch">
-    <th class="w150">Description</th><th class="w80">Grade</th>
-    <th class="w70">Inner(kg)</th><th class="w70">Outer Pk</th><th class="w70">Qty(kg)</th>
-    <th class="w100">Country</th><th class="w120">Supplier</th><th class="w100">Type</th>
-    <th class="w90">Service</th><th class="w70">Quote</th>
-    <th class="w100">Misc Desc</th><th class="w100">Prod Req</th><th class="w60">Core%</th>
-    <th class="w60">Curr.</th><th class="w80">Buy /kg</th><th class="w70">CFR/FOB</th>
-    <th class="w80">Pkg/kg</th><th class="w80">Frt/kg</th><th class="w80">FX Misc/kg</th><th class="w80">FX Rate</th>
-    <th class="w90" ${hs}>FOB Calc</th>
+    <th class="w200">Description</th><th class="w80">Grade</th>
+    <th class="w65">Inner(kg)</th><th class="w65">Outer Pk</th><th class="w70">Qty(kg)</th>
+    <th class="w90">Country</th><th class="w140">Supplier</th><th class="w110">Type</th>
+    <th class="w80">Service</th><th class="w65">Quote</th>
+    <th class="w110">Misc Desc</th><th class="w100">Prod Req</th><th class="w50">Core%</th>
+    <th class="w56">Curr.</th><th class="w80">Buy /kg</th><th class="w60">CFR/FOB</th>
+    <th class="w70">Pkg/kg</th><th class="w70">Frt/kg</th><th class="w80">FX Misc/kg</th><th class="w80">FX Rate</th>
+    <th class="w85" ${hs}>FOB Calc</th>
     <th class="w90">Total/Inner</th><th class="w90">NZ$ Cost</th>
     <th class="w110" ${hs}>Price(Inner)</th>
-    <th class="w80">US Margin</th><th class="w90">US Net</th>
-    <th class="w80">Mktg/Inn</th><th class="w90" ${hs}>Mktg+</th>
-    <th class="w80">NZ Misc</th><th class="w90" ${hs}>Misc+</th>
-    <th class="w80">LF/kg</th><th class="w90">LF Added</th>
-    <th class="w90">Cust Reb.</th><th class="w90" ${hs}>Reb.Conv</th>
-    <th class="w90" ${hs}>CR Added</th>
+    <th class="w70">US Margin</th><th class="w90">US Net</th>
+    <th class="w70">Mktg/Inn</th><th class="w85" ${hs}>Mktg+</th>
+    <th class="w70">NZ Misc</th><th class="w85" ${hs}>Misc+</th>
+    <th class="w70">LF/kg</th><th class="w90">LF Added</th>
+    <th class="w80">Cust Reb.</th><th class="w85" ${hs}>Reb.Conv</th>
+    <th class="w85" ${hs}>CR Added</th>
     <th class="w90">Sell Price</th>
-    <th class="w80">DC Rate</th><th class="w90" ${hs}>DC Calc</th>
-    <th class="w90">Cust Mgn</th><th class="w90">Retail</th><th class="w90">DC Retail</th>
-    <th class="w70">GST</th><th class="w90">Incl.GST</th>
+    <th class="w70">DC Rate</th><th class="w85" ${hs}>DC Calc</th>
+    <th class="w80">Cust Mgn</th><th class="w90">Retail</th><th class="w90">DC Retail</th>
+    <th class="w56">GST</th><th class="w90">Incl.GST</th>
     <th class="w80">Curr.FS</th>
-    <th class="w90">Diff.</th><th class="w80">Cont.Qty</th><th class="w90">Profit NZD</th>
+    <th class="w85">Diff.</th><th class="w80">Cont.Qty</th><th class="w90">Profit NZD</th>
   </tr>`;
 }
 
@@ -509,51 +511,51 @@ function renderFullRow(r, i) {
   const act=r.id===activeRowId?' is-active':'';
   return `<tr class="dr${act}" data-id="${r.id}" onclick="setActive('${r.id}')">
     <td class="rn sc w34">${i+1}</td>
-    <td class="w150">${mkInp(r.description,r.id,'description')}</td>
+    <td class="w200">${mkInp(r.description,r.id,'description')}</td>
     <td class="w80">${mkInp(r.grade,r.id,'grade')}</td>
-    <td class="w70">${mkInp(r.innerPackSize,r.id,'innerPackSize','number','0.001')}</td>
-    <td class="w70">${mkInp(r.outerPackSize,r.id,'outerPackSize','number','1')}</td>
+    <td class="w65">${mkInp(r.innerPackSize,r.id,'innerPackSize','number','0.001')}</td>
+    <td class="w65">${mkInp(r.outerPackSize,r.id,'outerPackSize','number','1')}</td>
     <td class="w70">${mkInp(r.quantity,r.id,'quantity','number','0.001')}</td>
-    <td class="w100">${mkSel(OPT.countries||[],r.country,r.id,'country')}</td>
-    <td class="w120">${mkSel(OPT.suppliers||[],r.supplier,r.id,'supplier')}</td>
-    <td class="w100">${mkSel(OPT.types||[],r.indentReplen,r.id,'indentReplen')}</td>
-    <td class="w90">${mkSel(OPT.services||[],r.service,r.id,'service')}</td>
-    <td class="w70">${mkInp(r.quote,r.id,'quote')}</td>
-    <td class="w100">${mkInp(r.miscDesc,r.id,'miscDesc')}</td>
+    <td class="w90">${mkSel(OPT.countries||[],r.country,r.id,'country')}</td>
+    <td class="w140">${mkSel(OPT.suppliers||[],r.supplier,r.id,'supplier')}</td>
+    <td class="w110">${mkSel(OPT.types||[],r.indentReplen,r.id,'indentReplen')}</td>
+    <td class="w80">${mkSel(OPT.services||[],r.service,r.id,'service')}</td>
+    <td class="w65">${mkInp(r.quote,r.id,'quote')}</td>
+    <td class="w110">${mkInp(r.miscDesc,r.id,'miscDesc')}</td>
     <td class="w100">${mkInp(r.productReq,r.id,'productReq')}</td>
-    <td class="w60">${mkInp(r.corePercent,r.id,'corePercent','number','0.01')}</td>
-    <td class="w60">${mkSel(OPT.currencies||[],r.currency,r.id,'currency')}</td>
+    <td class="w50">${mkInp(r.corePercent,r.id,'corePercent','number','0.01')}</td>
+    <td class="w56">${mkSel(OPT.currencies||[],r.currency,r.id,'currency')}</td>
     <td class="w80">${mkInp(r.buyPrice,r.id,'buyPrice','number','0.0001')}</td>
-    <td class="w70">${mkSel(OPT.cfrfob||[],r.cfrFob,r.id,'cfrFob')}</td>
-    <td class="w80">${mkInp(r.packaging,r.id,'packaging','number','0.0001')}</td>
-    <td class="w80">${mkInp(r.freight,r.id,'freight','number','0.0001')}</td>
+    <td class="w60">${mkSel(OPT.cfrfob||[],r.cfrFob,r.id,'cfrFob')}</td>
+    <td class="w70">${mkInp(r.packaging,r.id,'packaging','number','0.0001')}</td>
+    <td class="w70">${mkInp(r.freight,r.id,'freight','number','0.0001')}</td>
     <td class="w80">${mkInp(r.fxMisc,r.id,'fxMisc','number','0.0001')}</td>
     <td class="w80">${mkInp(r.fxRate,r.id,'fxRate','number','0.0001')}</td>
-    <td class="cc w90" ${hs}>${f(c.fobCalc)}</td>
+    <td class="cc w85" ${hs}>${f(c.fobCalc)}</td>
     <td class="cc w90">${f(c.totalInner)}</td>
     <td class="cc w90">${f(c.nzCost)}</td>
     <td class="cc w110" style="font-size:11px${hw?';display:none':''}">${esc(c.priceInner)}</td>
-    <td class="w80">${mkInp(r.unitedMargin,r.id,'unitedMargin','number','0.01')}</td>
+    <td class="w70">${mkInp(r.unitedMargin,r.id,'unitedMargin','number','0.01')}</td>
     <td class="cc w90">${f(c.usNet)}</td>
-    <td class="w80">${mkInp(r.marketing,r.id,'marketing','number','0.01')}</td>
-    <td class="cc w90" ${hs}>${f(c.mkAdded)}</td>
-    <td class="w80">${mkInp(r.nzMisc,r.id,'nzMisc','number','0.01')}</td>
-    <td class="cc w90" ${hs}>${f(c.miscAdded)}</td>
-    <td class="w80">${mkInp(r.localFreight,r.id,'localFreight','number','0.01')}</td>
+    <td class="w70">${mkInp(r.marketing,r.id,'marketing','number','0.01')}</td>
+    <td class="cc w85" ${hs}>${f(c.mkAdded)}</td>
+    <td class="w70">${mkInp(r.nzMisc,r.id,'nzMisc','number','0.01')}</td>
+    <td class="cc w85" ${hs}>${f(c.miscAdded)}</td>
+    <td class="w70">${mkInp(r.localFreight,r.id,'localFreight','number','0.01')}</td>
     <td class="cc w90">${f(c.lfAdded)}</td>
-    <td class="w90">${mkInp(r.customerRebate,r.id,'customerRebate','number','0.001')}</td>
-    <td class="cc w90" ${hs}>${f(c.rebConv)}</td>
-    <td class="cc w90" ${hs}>${f(c.crAdded)}</td>
+    <td class="w80">${mkInp(r.customerRebate,r.id,'customerRebate','number','0.001')}</td>
+    <td class="cc w85" ${hs}>${f(c.rebConv)}</td>
+    <td class="cc w85" ${hs}>${f(c.crAdded)}</td>
     <td class="cc w90 bold">${f(c.sellPrice)}</td>
-    <td class="w80">${mkInp(r.dcRate,r.id,'dcRate','number','0.001')}</td>
-    <td class="cc w90" ${hs}>${f(c.dcCalc)}</td>
-    <td class="w90">${mkInp(r.customerMargin,r.id,'customerMargin','number','0.01')}</td>
+    <td class="w70">${mkInp(r.dcRate,r.id,'dcRate','number','0.001')}</td>
+    <td class="cc w85" ${hs}>${f(c.dcCalc)}</td>
+    <td class="w80">${mkInp(r.customerMargin,r.id,'customerMargin','number','0.01')}</td>
     <td class="cc w90">${f(c.retail)}</td>
     <td class="cc w90">${f(c.dcRetail)}</td>
-    <td class="w70">${mkInp(r.gst,r.id,'gst','number','0.01')}</td>
+    <td class="w56">${mkInp(r.gst,r.id,'gst','number','0.01')}</td>
     <td class="cc w90 bold">${f(c.inclGST)}</td>
     <td class="w80">${mkInp(r.currentFS,r.id,'currentFS','number','0.01')}</td>
-    <td class="cc w90 ${dC}">${f(c.diff)}</td>
+    <td class="cc w85 ${dC}">${f(c.diff)}</td>
     <td class="cc w80">${f2(c.contQty)}</td>
     <td class="cc w90 bold ${pC}">$${f2(c.profitNZD)}</td>
     <td class="ac"><button class="dup-btn" onclick="dupRow('${r.id}')" title="Duplicate">&#10697;</button><button class="del-btn" onclick="delRow('${r.id}')" title="Delete">&#10005;</button></td>
@@ -565,16 +567,16 @@ function renderCustRow(r, i) {
   const c=calc(r), act=r.id===activeRowId?' is-active':'';
   return `<tr class="dr${act}" data-id="${r.id}" onclick="setActive('${r.id}')">
     <td class="rn sc w34">${i+1}</td>
-    <td class="w100">${mkSel(OPT.countries||[],r.country,r.id,'country')}</td>
-    <td class="w120">${mkSel(OPT.suppliers||[],r.supplier,r.id,'supplier')}</td>
-    <td class="w100">${mkSel(OPT.types||[],r.indentReplen,r.id,'indentReplen')}</td>
-    <td class="w90">${mkSel(OPT.services||[],r.service,r.id,'service')}</td>
+    <td class="w90">${mkSel(OPT.countries||[],r.country,r.id,'country')}</td>
+    <td class="w140">${mkSel(OPT.suppliers||[],r.supplier,r.id,'supplier')}</td>
+    <td class="w110">${mkSel(OPT.types||[],r.indentReplen,r.id,'indentReplen')}</td>
+    <td class="w80">${mkSel(OPT.services||[],r.service,r.id,'service')}</td>
     <td class="w70">${mkInp(r.quantity,r.id,'quantity','number','0.001')}</td>
-    <td class="w150">${mkInp(r.description,r.id,'description')}</td>
+    <td class="w200">${mkInp(r.description,r.id,'description')}</td>
     <td class="w80">${mkInp(r.grade,r.id,'grade')}</td>
-    <td class="w70">${mkInp(r.innerPackSize,r.id,'innerPackSize','number','0.001')}</td>
-    <td class="w70">${mkInp(r.outerPackSize,r.id,'outerPackSize','number','1')}</td>
-    <td class="w100">${mkInp(r.miscDesc,r.id,'miscDesc')}</td>
+    <td class="w65">${mkInp(r.innerPackSize,r.id,'innerPackSize','number','0.001')}</td>
+    <td class="w65">${mkInp(r.outerPackSize,r.id,'outerPackSize','number','1')}</td>
+    <td class="w110">${mkInp(r.miscDesc,r.id,'miscDesc')}</td>
     <td class="w100">${mkInp(r.productReq,r.id,'productReq')}</td>
     <td class="cc w90 bold">${f(c.sellPrice)}</td>
     <td class="ac"><button class="dup-btn" onclick="dupRow('${r.id}')" title="Duplicate">&#10697;</button><button class="del-btn" onclick="delRow('${r.id}')" title="Delete">&#10005;</button></td>
@@ -678,7 +680,7 @@ function ufl(rid, fld, val) {
   // recolor
   cc.forEach(cell=>{
     const t=cell.textContent;
-    if(t===f(c.diff,4)){ cell.className='cc w90 '+(c.diff<0?'neg':'pos'); }
+    if(t===f(c.diff,4)){ cell.className='cc w85 '+(c.diff<0?'neg':'pos'); }
     if(t==='$'+f2(c.profitNZD)){ cell.className='cc w90 bold '+(c.profitNZD<0?'neg':'pos'); }
   });
 }
