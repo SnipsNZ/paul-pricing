@@ -234,6 +234,10 @@ input.ci[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:
       <button class="sb-close" onclick="closeSidebar()" title="Close">&#215;</button>
     </div>
   </div>
+  <div style="padding:6px 8px;border-bottom:1px solid var(--border);flex-shrink:0">
+    <input type="text" id="sbSearch" placeholder="Search pages…" oninput="renderSidebar()"
+      style="width:100%;border:1px solid var(--border);border-radius:4px;padding:4px 8px;font-size:12px;font-family:inherit">
+  </div>
   <div class="page-list" id="pageList"></div>
 </div>
 
@@ -362,7 +366,7 @@ function calc(r) {
 }
 
 // ── Helpers ───────────────────────────────────────────────────
-const f   = (v,d=4)  => (isNaN(v)||v==null)?'-':v.toFixed(d);
+const f   = (v,d=2)  => (isNaN(v)||v==null)?'-':v.toFixed(d);
 const f2  = v         => (isNaN(v)||v==null)?'-':v.toFixed(2);
 const esc = s         => s==null?'':String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const gid = ()        => Math.random().toString(36).slice(2,10);
@@ -666,11 +670,11 @@ function ufl(rid, fld, val) {
   if(viewMode==='customer'){ if(cc[0]) cc[0].textContent=f(c.sellPrice); return; }
   const hw=viewMode==='workings';
   const allVals=[
-    [c.fobCalc,4,hw],[c.totalInner,4,false],[c.nzCost,4,false],[c.priceInner,4,hw],
-    [c.usNet,4,false],[c.mkAdded,4,hw],[c.miscAdded,4,hw],[c.lfAdded,4,false],
-    [c.rebConv,4,hw],[c.crAdded,4,hw],[c.sellPrice,4,false],[c.dcCalc,4,hw],
-    [c.retail,4,false],[c.dcRetail,4,false],[c.inclGST,4,false],
-    [c.diff,4,false],[c.contQty,2,false],[c.profitNZD,2,false,'$']
+    [c.fobCalc,2,hw],[c.totalInner,2,false],[c.nzCost,2,false],[c.priceInner,2,hw],
+    [c.usNet,2,false],[c.mkAdded,2,hw],[c.miscAdded,2,hw],[c.lfAdded,2,false],
+    [c.rebConv,4,hw],[c.crAdded,2,hw],[c.sellPrice,2,false],[c.dcCalc,4,hw],
+    [c.retail,2,false],[c.dcRetail,2,false],[c.inclGST,2,false],
+    [c.diff,2,false],[c.contQty,2,false],[c.profitNZD,2,false,'$']
   ];
   let ci=0;
   allVals.forEach(([v,d,hidden,pfx])=>{
@@ -732,6 +736,7 @@ function openSidebar() {
   document.getElementById('sidebar').classList.add('open');
   document.getElementById('sbBackdrop').classList.add('on');
   document.getElementById('pgToggle').classList.add('on');
+  const s=document.getElementById('sbSearch'); if(s){s.value='';renderSidebar();s.focus();}
 }
 function closeSidebar() {
   sidebarOpen=false;
@@ -753,6 +758,8 @@ async function loadOptions() {
   const {data,error}=await sb.from('options').select('data').eq('id',1).single();
   if(data){
     OPT=data.data;
+    // Ensure Indent/Replen is in the types list alongside legacy values
+    if(OPT.types && !OPT.types.includes('Indent/Replen')) OPT.types.unshift('Indent/Replen');
     optInMem=JSON.parse(JSON.stringify(OPT));
     populateCustList();
   } else {
@@ -774,13 +781,25 @@ async function loadList() {
   } else { toast('Cannot load pages','err'); }
 }
 
+function fmtDate(d) {
+  if(!d) return 'No date';
+  const dt=new Date(d+'T00:00:00');
+  if(isNaN(dt)) return d;
+  return dt.toLocaleDateString('en-NZ',{day:'numeric',month:'short',year:'numeric'});
+}
+
 function renderSidebar() {
   const el=document.getElementById('pageList');
-  if(!pages.length){el.innerHTML='<div class="sb-empty">No pages yet.<br>Click <b>+ New</b> to start.</div>';return;}
-  el.innerHTML=pages.map(p=>`
+  const q=(document.getElementById('sbSearch')?.value||'').toLowerCase().trim();
+  const filtered=q?pages.filter(p=>(p.customerName||'').toLowerCase().includes(q)):pages;
+  if(!filtered.length){
+    el.innerHTML=`<div class="sb-empty">${pages.length?'No matches':'No pages yet.<br>Click <b>+ New</b> to start.'}</div>`;
+    return;
+  }
+  el.innerHTML=filtered.map(p=>`
     <div class="pg-item${cur&&cur.id===p.id?' active':''}" onclick="loadPage('${p.id}');closeSidebar()">
       <div class="pg-name">${esc(p.customerName||'Unnamed')}</div>
-      <div class="pg-date">${p.date||'No date'}</div>
+      <div class="pg-date">${fmtDate(p.date)}</div>
     </div>`).join('');
 }
 
@@ -1027,6 +1046,14 @@ function toast(msg,type='') {
   t.textContent=msg; t.className='toast on'+(type?' '+type:'');
   setTimeout(()=>t.className='toast',3000);
 }
+
+document.addEventListener('keydown', e => {
+  if((e.ctrlKey||e.metaKey) && e.key==='s'){ e.preventDefault(); savePage(); }
+  if(e.key==='Escape'){
+    if(document.getElementById('emailModal').classList.contains('open')){ closeEmail(); return; }
+    if(sidebarOpen){ closeSidebar(); return; }
+  }
+});
 
 document.addEventListener('DOMContentLoaded',init);
 </script>
